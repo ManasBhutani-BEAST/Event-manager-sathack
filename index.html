@@ -17,6 +17,27 @@
 
     <!-- 5. OUR Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style for the clickable password */
+        .password-toggle {
+            cursor: pointer;
+            user-select: none;
+            font-family: monospace;
+            display: inline-block;
+            min-width: 80px; /* Give it a fixed width */
+            padding: 2px 4px;
+            border-radius: 4px;
+            background-color: #f4f4f5;
+            text-align: center;
+        }
+        .password-toggle:hover {
+            background-color: #e4e4e7;
+        }
+        .password-toggle.revealed {
+            background-color: #fecaca;
+            color: #b91c1c;
+        }
+    </style>
 
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
@@ -191,10 +212,16 @@
                                         Event Roll No.
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Password
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         College
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
                                     </th>
                                 </tr>
                             </thead>
@@ -419,6 +446,81 @@
                 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                     <!-- Your 'Find Yourself' content goes here -->
                     <p>This is the 'Find Yourself' page. This could be a link to the Participant view or another search feature.</p>
+                </div>
+            </div>
+
+            <!-- =================================================================== -->
+            <!-- EDIT PARTICIPANT MODAL (Hidden by default) -->
+            <!-- =================================================================== -->
+            <div id="edit-participant-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+                <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Edit Participant</h2>
+                    <form id="edit-participant-form" class="space-y-4">
+                        <!-- Hidden field to store the participant's ID -->
+                        <input type="hidden" id="edit-participant-id">
+
+                        <div>
+                            <label for="edit-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="edit-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="edit-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="edit-email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="edit-accommodation" class="block text-sm font-medium text-gray-700">Accommodation Details</label>
+                            <input type="text" id="edit-accommodation" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="edit-college" class="block text-sm font-medium text-gray-700">College Name</label>
+                            <input type="text" id="edit-college" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="edit-college-id" class="block text-sm font-medium text-gray-700">College ID Number</label>
+                            <input type="text" id="edit-college-id" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <fieldset>
+                            <legend class="text-sm font-medium text-gray-700">Allowed Locations</legend>
+                            <div class="mt-2 space-y-2" id="edit-allowed-locations">
+                                <!-- JS will populate this, but here's a template -->
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="edit-location" value="Accommodation">
+                                    <span class="ml-2 text-sm text-gray-600">Accommodation</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="edit-location" value="Campus">
+                                    <span class="ml-2 text-sm text-gray-600">On Campus</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="edit-location" value="Event X">
+                                    <span class="ml-2 text-sm text-gray-600">Event X (VIP)</span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <div id="edit-message" class="text-sm text-center"></div>
+
+                        <div class="flex gap-4 pt-4">
+                            <button type="button" id="edit-cancel-btn" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition">Cancel</button>
+                            <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- =================================================================== -->
+            <!-- DELETE CONFIRM MODAL (Hidden by default) -->
+            <!-- =================================================================== -->
+            <div id="delete-confirm-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+                <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
+                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Are you sure?</h2>
+                    <p id="delete-confirm-text" class="text-center text-gray-600 mb-6">Do you really want to delete this participant? This action cannot be undone.</p>
+
+                    <div class="flex gap-4">
+                        <button type="button" id="delete-cancel-btn" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition">Cancel</button>
+                        <button type="button" id="delete-confirm-btn" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition">Confirm Delete</button>
+                    </div>
                 </div>
             </div>
         </main>

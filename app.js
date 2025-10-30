@@ -158,7 +158,6 @@ if (createParticipantForm) {
                 const newCount = currentCount + 1;
                 // NEW ID FORMAT
                 const newRollNumberString = `SAT${String(newCount).padStart(6, '0')}`;
-                const newPassword = generateRandomPassword();
 
                 // 5. Set up the new participant's data
                 const newParticipantRef = participantsCollection.doc(newRollNumberString);
@@ -262,7 +261,7 @@ function renderParticipantList(participants) {
     participantListBody.innerHTML = ''; // Clear the table
 
     if (participants.length === 0) {
-        participantListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No participants found.</td></tr>';
+        participantListBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No participants found.</td></tr>';
         return;
     }
 
@@ -274,7 +273,17 @@ function renderParticipantList(participants) {
                 <div class="text-sm text-gray-500">${participant.email}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${participant.eventRollNumber}</td>
+
+            <!-- NEW: Password Column -->
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="password-toggle" 
+                    data-password="${participant.password}" 
+                    onclick="togglePassword(this)">
+                    ********
+                </span>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${participant.college}</td>
+            
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     participant.currentLocation === 'Accommodation' ? 'bg-blue-100 text-blue-800' :
@@ -284,6 +293,12 @@ function renderParticipantList(participants) {
                 }">
                     ${participant.currentLocation}
                 </span>
+            </td>
+
+            <!-- NEW: Actions Column -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <button onclick="openEditModal('${participant.eventRollNumber}')" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                <button onclick="openDeleteModal('${participant.eventRollNumber}', '${participant.name}')" class="text-red-600 hover:text-red-900">Delete</button>
             </td>
         `;
         participantListBody.appendChild(tr);
@@ -308,7 +323,7 @@ participantsCollection.onSnapshot(snapshot => {
 
 }, error => {
     console.error("Error with participant list snapshot: ", error);
-    participantListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error loading data.</td></tr>';
+    participantListBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error loading data.</td></tr>';
 });
 
 // Add listener for the search bar
@@ -678,3 +693,150 @@ function generateRandomPassword(length = 8) {
     }
     return password;
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    // ===================================================================
+    // 5. NEW ADMIN HELPER FUNCTIONS (EDIT, DELETE, PASSWORD)
+    // ===================================================================
+
+    // --- Toggle Password Visibility ---
+    // This function is global because it's called by onclick
+    window.togglePassword = (element) => {
+        const password = element.dataset.password;
+        if (element.textContent === "********") {
+            element.textContent = password;
+            element.classList.add("revealed");
+        } else {
+            element.textContent = "********";
+            element.classList.remove("revealed");
+        }
+    };
+
+    // --- Delete Participant Logic ---
+    const deleteModal = document.getElementById('delete-confirm-modal');
+    const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+    const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+    const deleteConfirmText = document.getElementById('delete-confirm-text');
+    let participantIdToDelete = null; // Stores which participant to delete
+
+    // This function is global because it's called by onclick
+    window.openDeleteModal = (id, name) => {
+        participantIdToDelete = id;
+        deleteConfirmText.innerHTML = `Do you really want to delete <strong>${name}</strong> (ID: ${id})? This action cannot be undone.`;
+        deleteModal.classList.remove('hidden');
+    };
+
+    // Add listener for the modal's "Cancel" button
+    deleteCancelBtn.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+        participantIdToDelete = null;
+    });
+
+    // Add listener for the modal's "Confirm Delete" button
+    deleteConfirmBtn.addEventListener('click', async () => {
+        if (!participantIdToDelete) return;
+
+        try {
+            await participantsCollection.doc(participantIdToDelete).delete();
+            
+            // Show success message in admin message area
+            adminMessage.innerHTML = `Success: Participant ${participantIdToDelete} has been deleted.`;
+            adminMessage.className = "mt-4 text-center text-green-600";
+            setTimeout(() => { adminMessage.innerHTML = ""; }, 3000);
+
+        } catch (error) {
+            console.error("Error deleting participant:", error);
+            adminMessage.innerHTML = "Error: Could not delete participant. Check console.";
+            adminMessage.className = "mt-4 text-center text-red-600";
+        } finally {
+            // Always close the modal and reset the ID
+            deleteModal.classList.add('hidden');
+            participantIdToDelete = null;
+        }
+    });
+
+    // --- Edit Participant Logic ---
+    const editModal = document.getElementById('edit-participant-modal');
+    const editForm = document.getElementById('edit-participant-form');
+    const editCancelBtn = document.getElementById('edit-cancel-btn');
+    const editMessage = document.getElementById('edit-message');
+
+    // This function is global because it's called by onclick
+    window.openEditModal = (id) => {
+        // Find the participant's data from the locally stored array (allParticipants)
+        const participant = allParticipants.find(p => p.eventRollNumber === id);
+        if (!participant) {
+            alert("Error: Could not find participant data to edit.");
+            return;
+        }
+
+        // Pre-fill the form
+        document.getElementById('edit-participant-id').value = participant.eventRollNumber;
+        document.getElementById('edit-name').value = participant.name;
+        document.getElementById('edit-email').value = participant.email;
+        document.getElementById('edit-accommodation').value = participant.accommodation;
+        document.getElementById('edit-college').value = participant.college;
+        document.getElementById('edit-college-id').value = participant.collegeId;
+
+        // Pre-check the allowed locations
+        const locationCheckboxes = document.querySelectorAll('.edit-location');
+        locationCheckboxes.forEach(checkbox => {
+            if (participant.allowedLocations && participant.allowedLocations.includes(checkbox.value)) {
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false;
+            }
+        });
+        
+        editMessage.textContent = ""; // Clear old messages
+        editModal.classList.remove('hidden');
+    };
+
+    // Add listener for the edit modal's "Cancel" button
+    editCancelBtn.addEventListener('click', () => {
+        editModal.classList.add('hidden');
+    });
+
+    // Add listener for the edit form's "Save Changes" (submit) button
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        editMessage.textContent = "Saving...";
+        editMessage.className = "text-sm text-center text-gray-600";
+
+        // Get all the new values
+        const id = document.getElementById('edit-participant-id').value;
+        
+        const newAllowedLocations = [];
+        document.querySelectorAll('.edit-location:checked').forEach(checkbox => {
+            newAllowedLocations.push(checkbox.value);
+        });
+
+        // Create an object with only the fields we want to update
+        const updatedData = {
+            name: document.getElementById('edit-name').value,
+            email: document.getElementById('edit-email').value,
+            accommodation: document.getElementById('edit-accommodation').value,
+            college: document.getElementById('edit-college').value,
+            collegeId: document.getElementById('edit-college-id').value,
+            allowedLocations: newAllowedLocations
+        };
+
+        try {
+            // Update the document in Firestore
+            await participantsCollection.doc(id).update(updatedData);
+            
+            editMessage.textContent = "Success! Participant updated.";
+            editMessage.className = "text-sm text-center text-green-600";
+
+            // Hide modal after 2 seconds
+            setTimeout(() => {
+                editModal.classList.add('hidden');
+            }, 2000);
+
+        } catch (error) {
+            console.error("Error updating participant:", error);
+            editMessage.textContent = "Error: Could not update. Check console.";
+            editMessage.className = "text-sm text-center text-red-600";
+        }
+    });
+});
