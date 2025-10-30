@@ -29,6 +29,13 @@ firebase.auth().signInAnonymously().catch((error) => {
 // 1. GLOBAL APP LOGIC (View Switching)
 // ===================================================================
 const views = document.querySelectorAll('.view');
+const loginModal = document.getElementById('login-modal');
+const loginForm = document.getElementById('login-form');
+const loginTitle = document.getElementById('login-title');
+const loginIdInput = document.getElementById('login-id');
+const loginPasswordInput = document.getElementById('login-password');
+const loginErrorMessage = document.getElementById('login-error-message');
+const loginCancelBtn = document.getElementById('login-cancel-btn');
 
 // We make this function global by attaching it to 'window'
 // so that the 'onclick' attributes in the HTML can find it.
@@ -47,6 +54,56 @@ window.showView = (viewId) => {
         stopScanner();
     }
 };
+// --- NEW: LOGIN MODAL LOGIC ---
+let loginSubmitHandler = null; // We use this to change the login logic
+
+// Make this function global so the HTML onclick can find it
+window.promptLogin = (role) => {
+    loginErrorMessage.textContent = '';
+    loginForm.reset(); // Clear old inputs
+
+    // Remove any old event listener to prevent duplicates
+    if (loginSubmitHandler) {
+        loginForm.removeEventListener('submit', loginSubmitHandler);
+    }
+
+    // Define what happens when the login form is submitted
+    loginSubmitHandler = (e) => {
+        e.preventDefault();
+        const id = loginIdInput.value.trim();
+        const pass = loginPasswordInput.value.trim();
+
+        // Check credentials
+        if (role === 'admin' && id === 'admin' && pass === 'admin') {
+            closeLoginModal();
+            showView('admin-view');
+        } else if (role === 'guard' && id === 'guard' && pass === 'guard') {
+            closeLoginModal();
+            showView('guard-view');
+        } else {
+            loginErrorMessage.textContent = "Invalid ID or Password.";
+        }
+    };
+
+    // Set the title and attach the new event listener
+    loginTitle.textContent = (role === 'admin' ? 'Admin Login' : 'Guard Login');
+    loginForm.addEventListener('submit', loginSubmitHandler);
+
+    // Show the modal
+    loginModal.classList.remove('hidden');
+};
+
+function closeLoginModal() {
+    loginModal.classList.add('hidden');
+    if (loginSubmitHandler) {
+        loginForm.removeEventListener('submit', loginSubmitHandler);
+        loginSubmitHandler = null;
+    }
+}
+
+// Add click listener for the modal's cancel button
+loginCancelBtn.addEventListener('click', closeLoginModal);
+
 // Show admin view by default
 showView('home-view');
 
@@ -88,6 +145,7 @@ if (createParticipantForm) {
         try {
             // 3. Run a Firestore Transaction (this is the magic!)
             const photoBase64 = await resizeAndEncodeImage(photoFile);
+            const newPassword = generateRandomPassword();
             const newRollNumber = await db.runTransaction(async (transaction) => {
                 const counterDoc = await transaction.get(counterRef);
 
@@ -98,8 +156,9 @@ if (createParticipantForm) {
 
                 // 4. Increment the count and format the new ID
                 const newCount = currentCount + 1;
-                // This formats "9" as "009", "10" as "010", etc.
-                const newRollNumberString = `EVT-${String(newCount).padStart(3, '0')}`;
+                // NEW ID FORMAT
+                const newRollNumberString = `SAT${String(newCount).padStart(6, '0')}`;
+                const newPassword = generateRandomPassword();
 
                 // 5. Set up the new participant's data
                 const newParticipantRef = participantsCollection.doc(newRollNumberString);
@@ -113,6 +172,7 @@ if (createParticipantForm) {
                     eventRollNumber: newRollNumberString, // The new ID
                     currentLocation: "Campus",
                     photoBase64: photoBase64,
+                    password: newPassword, // NEW
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
@@ -127,10 +187,11 @@ if (createParticipantForm) {
             // 8. Handle Success
             const participantEmail = email;
             const subject = "Your Event QR ID";
-            const body = `Hi ${name},\n\nWelcome to the event! Here is your unique participant ID.\n\nYour Event Roll Number: ${newRollNumber}\n\nUse this roll number in the "Participant View" of the app to get your QR code.`;
+            // NEW: Updated email body
+            const body = `Hi ${name},\n\nWelcome to the event! Here is your login information.\n\nYour Event ID: ${newRollNumber}\nYour Password: ${newPassword}\n\nUse these in the "Participant View" of the app to get your QR code.`;
             const mailtoLink = `mailto:${participantEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-            adminMessage.innerHTML = `Success! Participant created. ID: ${newRollNumber}<br>
+            adminMessage.innerHTML = `Success! Participant created.\n ID: ${newRollNumber}\n Password: ${newPassword}<br>
                 <a href="${mailtoLink}" target="_blank" class="text-blue-600 hover:underline">
                     Click here to email ID to ${name}
                 </a>`;
@@ -138,7 +199,7 @@ if (createParticipantForm) {
             createParticipantForm.reset();
 
             navigator.clipboard.writeText(newRollNumber).then(() => {
-                adminMessage.innerHTML = `Success! Participant created. ID: ${newRollNumber} (Copied!)<br>
+                adminMessage.innerHTML = `Success! Participant created.\n ID: ${newRollNumber}\n Password: ${newPassword}<br>
                     <a href="${mailtoLink}" target="_blank" class="text-blue-600 hover:underline">
                         Click here to email ID to ${name}
                     </a>`;
@@ -267,6 +328,7 @@ if (searchBar) {
 
 // Get references to all elements in this view
 const loadParticipantBtn = document.getElementById('load-participant-btn');
+const participantPasswordInput = document.getElementById('participant-password-input');
 const participantIdInput = document.getElementById('participant-id-input');
 const participantDetailsSection = document.getElementById('participant-details-section'); // <-- Note the name change
 const qrcodeDisplay = document.getElementById('qrcode-display');
@@ -277,6 +339,7 @@ let participantUnsub = null; // To stop the real-time listener
 if (loadParticipantBtn) {
     loadParticipantBtn.addEventListener('click', async () => {
         const participantId = participantIdInput.value.trim();
+        const password = participantPasswordInput.value; // NEW
         if (!participantId) {
             alert("Please enter a participant ID.");
             return;
@@ -298,7 +361,20 @@ if (loadParticipantBtn) {
             if (doc.exists) {
                 // 3. THIS IS THE LINE THAT WAS MISSING
                 // We must define 'data' *before* we can use it.
-                const data = doc.data(); 
+                const data = doc.data();
+                // --- NEW: Password Verification ---
+                if (data.password !== password) {
+                    alert("Invalid ID or Password!");
+                    // Clear old data just in case
+                    participantDetailsSection.classList.add('hidden');
+                    qrcodeDisplay.innerHTML = '';
+                    if (participantUnsub) {
+                        participantUnsub();
+                        participantUnsub = null;
+                    }
+                    return; // Stop the function
+                }         
+                // --- End of Verification ---
 
                 // 4. Fill in all the HTML elements
                 document.getElementById('participant-name-display').textContent = data.name;
@@ -592,3 +668,13 @@ function resizeAndEncodeImage(file, maxWidth = 300, maxHeight = 300) {
     });
 }
 // --- END OF BASE64 WORKAROUND ---
+
+// --- NEW: Random Password Generator ---
+function generateRandomPassword(length = 8) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+}

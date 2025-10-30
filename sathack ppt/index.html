@@ -1,0 +1,233 @@
+
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventalia Pitch Deck - Golden Odyssey</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1a202c; /* Even darker for body */
+            --bg-main: #2d3748; /* Darker slate for content areas */
+            --bg-content: #334155; /* slate-700 for boxes */
+            --text-primary: #facc15; /* Amber-500 for a golden touch */
+            --text-secondary: #fef08a; /* Amber-200 */
+            --text-light: #f1f5f9; /* slate-100 */
+            --text-muted: #94a3b8; /* slate-400 */
+            --problem: #f87171; /* red-400 */
+            --solution: #4ade80; /* green-400 */
+            --border-muted: #475569; /* slate-600 */
+            
+            --btn-primary-bg: #d97706; /* amber-600 */
+            --btn-primary-hover: #f59e0b; /* amber-500 */
+            --btn-secondary-bg: #334155; /* slate-700 */
+            --btn-secondary-hover: #f59e0b; /* amber-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+        .slide {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .aspect-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-dark) 100%);
+        }
+        .slide-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .theme-primary { color: var(--text-primary); }
+        .theme-secondary { color: var(--text-secondary); }
+        .text-problem { color: var(--problem); }
+        .text-solution { color: var(--solution); }
+        .text-muted { color: var(--text-muted); }
+        .content-box {
+            background: linear-gradient(135deg, #3e4c62 0%, #334155 100%);
+            border: 1px solid var(--border-muted);
+        }
+        .btn-primary {
+            background-color: var(--btn-primary-bg);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--btn-primary-hover);
+        }
+        .btn-secondary {
+            background-color: var(--btn-secondary-bg);
+            color: white;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--btn-secondary-hover);
+        }
+        .font-display {
+            font-family: 'EB Garamond', serif;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col items-center justify-center p-4 md:p-8">
+
+    <div class="w-full max-w-6xl mx-auto">
+        <!-- Aspect Ratio Container --><div class="aspect-container rounded-lg overflow-hidden shadow-2xl">
+            <!-- Slide 1: Introduction --><div id="slide-1" class="slide-content slide p-8 md:p-16 flex flex-col justify-between">
+                <div>
+                    <h1 class="text-6xl md:text-8xl font-extrabold theme-primary font-display">Eventalia</h1>
+                    <h2 class="text-2xl md:text-3xl font-semibold theme-secondary mt-2">Saturnalia Companion Website</h2>
+                    <p class="text-lg md:text-xl text-slate-300 mt-8 max-w-3xl">
+                        Eventalia is an all-in-one solution for Saturnalia, integrating secure access, campus navigation, and event management into a single, seamless website. We are solving the fest's biggest challenges in security, navigation, and crowd control.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-muted mb-4">THE TEAM</h3>
+                    <div class="flex flex-wrap gap-4 text-lg text-slate-200">
+                        <span class="bg-black/20 px-4 py-1 rounded-full border border-slate-600 shadow-md">Manas Bhutani</span>
+                        <span class="bg-black/20 px-4 py-1 rounded-full border border-slate-600 shadow-md">Atharv Singh</span>
+                        <span class="bg-black/20 px-4 py-1 rounded-full border border-slate-600 shadow-md">Paras Goyal</span>
+                        <span class="bg-black/20 px-4 py-1 rounded-full border border-slate-600 shadow-md">Pranya Soni</span>
+                        <span class="bg-black/20 px-4 py-1 rounded-full border border-slate-600 shadow-md">Agrima Mittal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Problems & Solutions --><div id="slide-2" class="slide-content slide p-8 md:p-16">
+                <h1 class="text-4xl md:text-5xl font-bold mb-12 text-center font-display">The Problems & Our Solutions</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 h-full">
+                    <!-- Problem 1 --><div class="content-box p-6 rounded-lg shadow-xl">
+                        <h3 class="text-2xl font-semibold text-problem mb-3">Problem 1: Overcrowding & Security</h3>
+                        <p class="text-lg text-slate-300">
+                            Limited event space and sharable passes create security risks from outsiders.
+                        </p>
+                        <hr class="my-6 border-slate-600">
+                        <h3 class="text-2xl font-semibold text-solution mb-3">Solution: Secure QR Passes</h3>
+                        <p class="text-lg text-slate-200">
+                            We issue non-shareable, unique QR passes for each event. They are scanned once at the entrance, blocking unauthorized/repeat entries and managing capacity.
+                        </p>
+                    </div>
+
+                    <!-- Problem 2 --><div class="content-box p-6 rounded-lg shadow-xl">
+                        <h3 class="text-2xl font-semibold text-problem mb-3">Problem 2: Student Safety & Flow</h3>
+                        <p class="text-lg text-slate-300">
+                            Difficult to track student activity or manage crowd density in real-time.
+                        </p>
+                        <hr class="my-6 border-slate-600">
+                        <h3 class="text-2xl font-semibold text-solution mb-3">Solution: Activity Timestamp System</h3>
+                        <p class="text-lg text-slate-200">
+                            Our website creates a background timestamp of student check-ins (at events, stalls, etc.) to help manage crowd flow and enhance campus safety.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Business & Sustainability --><div id="slide-3" class="slide-content slide p-8 md:p-16">
+                <h1 class="text-4xl md:text-5xl font-bold mb-8 text-center font-display">Business & Sustainability Model</h1>
+                <p class="text-xl text-slate-300 text-center max-w-3xl mx-auto mb-8">
+                    Our revenue model ensures continuous development and support for future fests.
+                </p>
+                <div class="space-y-4">
+                    <!-- Item 1 --><div class="content-box p-4 rounded-lg shadow-xl flex items-center">
+                        <span class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 border-2 border-amber-500 text-2xl font-bold theme-primary mr-6">01</span>
+                        <div>
+                            <h3 class="text-2xl font-semibold theme-secondary">Event Sponsorship</h3>
+                            <p class="text-lg text-slate-200">As the website for Saturnalia, we receive a primary budget from the fest's sponsorship funds.</p>
+                        </div>
+                    </div>
+                    <!-- Item 2 --><div class="content-box p-4 rounded-lg shadow-xl flex items-center">
+                        <span class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 border-2 border-amber-500 text-2xl font-bold theme-primary mr-6">02</span>
+                        <div>
+                            <h3 class="text-2xl font-semibold theme-secondary">In-App Ad Revenue</h3>
+                            <p class="text-lg text-slate-200">We generate revenue by displaying targeted, non-intrusive ads from sponsors and local vendors.</p>
+                        </div>
+                    </div>
+                    <!-- Item 3 --><div class="content-box p-4 rounded-lg shadow-xl flex items-center">
+                        <span class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 border-2 border-amber-500 text-2xl font-bold theme-primary mr-6">03</span>
+                        <div>
+                            <h3 class="text-2xl font-semibold theme-secondary">Promoted Listings (Commission)</h3>
+                            <p class="text-lg text-slate-200">We charge a commission for food stalls and other campus vendors to get "Featured" placement on the website's map.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Controls --><div class="flex justify-between items-center w-full max-w-6xl mx-auto mt-4">
+            <button id="prevBtn" class="btn-secondary font-bold py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                Prev
+            </button>
+            <div id="slide-counter" class="text-muted text-lg font-medium">
+                1 / 3
+            </div>
+            <button id="nextBtn" class="btn-primary font-bold py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 3;
+        
+        const slides = document.querySelectorAll('.slide-content'); // Select all slide contents
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slide-counter');
+
+        function showSlide(slideNumber) {
+            slides.forEach((slide, index) => {
+                if (index + 1 === slideNumber) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            slideCounter.textContent = `${slideNumber} / ${totalSlides}`;
+            prevBtn.disabled = (slideNumber === 1);
+            nextBtn.disabled = (slideNumber === totalSlides);
+            currentSlide = slideNumber;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextBtn.click();
+            } else if (e.key === 'ArrowLeft') {
+                prevBtn.click();
+            }
+        });
+
+        showSlide(1); // Initialize first slide
+    </script>
+
+</body>
+</html>
+
+
+

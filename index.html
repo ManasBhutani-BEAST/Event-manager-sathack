@@ -28,9 +28,9 @@
             <!-- Navigation to switch between views -->
             <nav class="flex justify-center space-x-4 mt-4">
                 <button onclick="showView('home-view')" class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition">Home</button>
-                <button onclick="showView('admin-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Admin</button>
+                <button onclick="promptLogin('admin')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Admin</button>
                 <button onclick="showView('participant-view')" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Participant</button>
-                <button onclick="showView('guard-view')" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">Guard</button>
+                <button onclick="promptLogin('guard')" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">Guard</button>
             </nav>
         </header>
 
@@ -205,13 +205,18 @@
                 <!-- 1. LOAD PARTICIPANT -->
                 <section class="bg-white p-6 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">View Your Details</h2>
-                    <div class="mb-4">
+                    <!-- Updated Load Section -->
+                    <div class="space-y-4">
+                    <div>
                         <label for="participant-id-input" class="block text-sm font-medium text-gray-700">Enter Your Participant ID</label>
-                        <div class="flex space-x-2 mt-1">
-                            <input type="text" id="participant-id-input" placeholder="Paste your ID here..." class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            <button id="load-participant-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Load</button>
-                        </div>
+                        <input type="text" id="participant-id-input" placeholder="Paste your ID here..." class="mt-1 flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
+                    <div>
+                        <label for="participant-password-input" class="block text-sm font-medium text-gray-700">Enter Your Password</label>
+                        <input type="password" id="participant-password-input" placeholder="Enter your password..." class="mt-1 flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <button id="load-participant-btn" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Load</button>
+                </div>
                 </section>
 
                 <!-- 2. PARTICIPANT DETAILS (hidden until loaded) -->
@@ -330,7 +335,29 @@
                     </div>
                 </section>
             </div>
-
+            <!-- =================================================================== -->
+            <!-- LOGIN MODAL (Hidden by default) -->
+            <!-- =================================================================== -->
+            <div id="login-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+                <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
+                    <h2 id="login-title" class="text-2xl font-bold text-center text-gray-800 mb-6">Login</h2>
+                    <form id="login-form" class="space-y-4">
+                    <div>
+                            <label for="login-id" class="block text-sm font-medium text-gray-700">User ID</label>
+                            <input type="text" id="login-id" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="login-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <p id="login-error-message" class="text-sm text-center text-red-600"></p>
+                        <div class="flex gap-4">
+                            <button type="button" id="login-cancel-btn" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition">Cancel</button>
+                            <button type="submit" id="login-submit-btn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
 
