@@ -21,16 +21,27 @@
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
 
-    <div class="container mx-auto p-4 max-w-4xl">
+    <div class="container mx-auto p-4 w-3/4">
         <header class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h1 class="text-3xl font-bold text-center text-indigo-600">Hackathon Event Manager</h1>
-            <p class="text-center text-gray-600">Real-time Participant Tracker POC</p>
+            <h1 class="text-3xl font-bold text-center text-indigo-600">EVENTALIA</h1>
+            <p class="text-center text-gray-600">Hackathon Event Manager</p>
             <!-- Navigation to switch between views -->
             <nav class="flex justify-center space-x-4 mt-4">
-                <button onclick="showView('home-view')" class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition">Home</button>
+                <!-- First block of buttons (indigo) -->
                 <button onclick="promptLogin('admin')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Admin</button>
-                <button onclick="showView('participant-view')" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Participant</button>
-                <button onclick="promptLogin('guard')" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">Guard</button>
+                <button onclick="showView('participant-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Participant</button>
+                <button onclick="showView('team-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Team Members</button>
+                
+                
+                <!-- Home button (gray) - CENTER -->
+                <button onclick="showView('home-view')" class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition">Home</button>
+                <button onclick="showView('events-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Events</button>
+                <!-- Second block of buttons (indigo) -->
+                <button onclick="showView('maps-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Maps</button>
+                <button onclick="showView('find-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Find Yourself</button>
+                
+                <!-- Guard button (indigo) - LAST -->
+                <button onclick="promptLogin('guard')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Guard</button>
             </nav>
         </header>
 
@@ -356,6 +367,58 @@
                             <button type="submit" id="login-submit-btn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">Login</button>
                         </div>
                     </form>
+                </div>
+            </div>
+            
+            <!-- New Team Members View -->
+            <div id="team-view" class="view hidden">
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Team Members</h1>
+                </div>
+                </header>
+                <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <!-- Your team content goes here -->
+                    <p>This is the Team Members page. You can list organizers and volunteers here.</p>
+                </div>
+            </div>
+
+            <!-- New Events View -->
+            <div id="events-view" class="view hidden">
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Events</h1>
+                    </div>
+                </header>
+                <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <!-- Your events schedule goes here -->
+                    <p>This is the Events page. You can add a schedule or list of activities here.</p>
+                </div>
+            </div>
+
+            <!-- New Maps View -->
+            <div id="maps-view" class="view hidden">
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Maps</h1>
+                    </div>
+                </header>
+                <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <!-- Your map images or embeds go here -->
+                    <p>This is the Maps page. You can embed images of the campus or venue layout here.</p>
+                </div>
+            </div>
+
+            <!-- New Find Yourself View -->
+            <div id="find-view" class="view hidden">
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Find Yourself</h1>
+                    </div>
+                </header>
+                <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <!-- Your 'Find Yourself' content goes here -->
+                    <p>This is the 'Find Yourself' page. This could be a link to the Participant view or another search feature.</p>
                 </div>
             </div>
         </main>
