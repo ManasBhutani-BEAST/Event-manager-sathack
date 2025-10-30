@@ -48,7 +48,7 @@ window.showView = (viewId) => {
     }
 };
 // Show admin view by default
-showView('admin-view');
+showView('home-view');
 
 // ===================================================================
 // 2. ADMIN VIEW LOGIC
