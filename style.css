@@ -1,0 +1,21 @@
+/* Custom style for the scanner message box */
+#scanner-message {
+    transition: all 0.3s ease-in-out;
+}
+.message-success {
+    background-color: #10B981; /* Green 500 */
+    color: white;
+    transform: scale(1.05);
+}
+.message-error {
+    background-color: #EF4444; /* Red 500 */
+    color: white;
+    transform: scale(1.05);
+}
+/* Ensure scanner region is visible */
+#qr-reader {
+    border: 2px dashed #9CA3AF;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+

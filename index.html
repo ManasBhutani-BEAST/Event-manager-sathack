@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event QR Manager POC</title>
+    <!-- 1. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <!-- 3. QR Code Generation Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- 4. QR Code Scanning Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- 5. OUR Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <header class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h1 class="text-3xl font-bold text-center text-indigo-600">Hackathon Event Manager</h1>
+            <p class="text-center text-gray-600">Real-time Participant Tracker POC</p>
+            <!-- Navigation to switch between views -->
+            <nav class="flex justify-center space-x-4 mt-4">
+                <button onclick="showView('admin-view')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">Admin</button>
+                <button onclick="showView('participant-view')" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Participant</button>
+                <button onclick="showView('guard-view')" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">Guard</button>
+            </nav>
+        </header>
+
+        <!-- Main content area for views -->
+        <main id="app-container">
+
+            <!-- =================================================================== -->
+            <!-- ADMIN VIEW -->
+            <!-- =================================================================== -->
+            <div id="admin-view" class="view space-y-6">
+                <!-- 1. REAL-TIME DASHBOARD -->
+                <section class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Real-time Dashboard</h2>
+                    <div id="dashboard-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Stats will be loaded here by JavaScript -->
+                        <div class="bg-gray-100 p-4 rounded-lg text-center">
+                            <div class="text-3xl font-bold text-indigo-600" id="stat-total">0</div>
+                            <div class="text-sm font-medium text-gray-500">Total Participants</div>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg text-center">
+                            <div class="text-3xl font-bold text-blue-600" id="stat-accommodation">0</div>
+                            <div class="text-sm font-medium text-gray-500">In Accommodation</div>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg text-center">
+                            <div class="text-3xl font-bold text-green-600" id="stat-campus">0</div>
+                            <div class="text-sm font-medium text-gray-500">On Campus</div>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg text-center">
+                            <div class="text-3xl font-bold text-purple-600" id="stat-event-x">0</div>
+                            <div class="text-sm font-medium text-gray-500">In Event X</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. CREATE PARTICIPANT -->
+                <section class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Create New Participant</h2>
+                    <form id="create-participant-form" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="accommodation" class="block text-sm font-medium text-gray-700">Accommodation Details</label>
+                            <input type="text" id="accommodation" placeholder="e.g., Hostel B, Room 101" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="college" class="block mb-2 text-sm font-medium text-gray-900">College Name</label>
+                            <input type="text" id="college" class="bg-gray-50 border ... " placeholder="University of Tech" required>
+                        </div>
+                        <div>
+                            <label for="college-id" class="block mb-2 text-sm font-medium text-gray-900">College ID Number</label>
+                            <input type="text" id="college-id" class="bg-gray-50 border ... " placeholder="123456" required>
+                        </div>
+                        <fieldset>
+                            <legend class="text-sm font-medium text-gray-700">Allowed Locations</legend>
+                            <div class="mt-2 space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="allowed-location" value="Accommodation" checked>
+                                    <span class="ml-2 text-sm text-gray-600">Accommodation</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="allowed-location" value="Campus" checked>
+                                    <span class="ml-2 text-sm text-gray-600">On Campus</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="allowed-location" value="Event X">
+                                    <span class="ml-2 text-sm text-gray-600">Event X (VIP)</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label for="photo-upload" class="block text-sm font-medium text-gray-700">Participant Photo</label>
+                                <input type="file" id="photo-upload" accept="image/*" required class="mt-1 block w-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-indigo-50 file:text-indigo-700
+                                    hover:file:bg-indigo-100
+                                "/>
+                            </div>
+                        </fieldset>
+                        <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition font-medium">Create Participant</button>
+                    </form>
+                    <div id="admin-message" class="mt-4 text-center"></div>
+                    <!-- Search and List Section -->
+                    <div class="mt-12">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Participant List</h3>
+
+                    <!-- Search Bar -->
+                    <div>
+                        <label for="search-bar" class="sr-only">Search</label>
+                        <input type="text" id="search-bar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Search by name, roll no, or college...">
+                    </div>
+
+                    <!-- Participant List Table -->
+                    <div class="mt-4 border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Name
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Event Roll No.
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        College
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="participant-list-body" class="bg-white divide-y divide-gray-200">
+                                <!-- JavaScript will fill this in -->
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- =================================================================== -->
+            <!-- PARTICIPANT VIEW -->
+            <!-- =================================================================== -->
+            <div id="participant-view" class="view hidden space-y-6">
+                <!-- 1. LOAD PARTICIPANT -->
+                <section class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">View Your Details</h2>
+                    <div class="mb-4">
+                        <label for="participant-id-input" class="block text-sm font-medium text-gray-700">Enter Your Participant ID</label>
+                        <div class="flex space-x-2 mt-1">
+                            <input type="text" id="participant-id-input" placeholder="Paste your ID here..." class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <button id="load-participant-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">Load</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PARTICIPANT DETAILS (hidden until loaded) -->
+                <section id="participant-details-section" class="bg-white p-6 rounded-lg shadow-lg hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" id="participant-name-display"></h3>
+                    <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Event Roll Number</dt>
+                        <dd id="participant-roll-number" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">N/A</dd>
+                    </div>
+                    <div class="space-y-2">
+                        <p><span class="font-medium text-gray-700">Email:</span> <span id="participant-email"></span></p>
+                        <p><span class="font-medium text-gray-700">Accommodation:</span> <span id="participant-accommodation"></span></p>
+                        <p><span class="font-medium text-gray-700">Current Status:</span> <span id="participant-status" class="font-bold text-lg text-indigo-600"></span></p>
+                    </div>
+                    <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">College</dt>
+                        <dd id="participant-college" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">N/A</dd>
+                    </div>
+                    <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">College ID</dt>
+                        <dd id="participant-college-id" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">N/A</dd>
+                    </div>
+                    <!-- New Photo Display -->
+                    <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Photo</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <img id="participant-photo" src="" alt="Participant Photo" class="w-48 h-48 rounded-lg object-cover shadow-sm">
+                        </dd>
+                    </div>
+                    <!-- QR Code Display -->
+                    <div class="mt-6 flex flex-col items-center">
+                        <h4 class="text-lg font-medium text-gray-700 mb-2">Your Unique QR Code</h4>
+                        <div id="qrcode-display" class="p-4 bg-white border rounded-lg shadow-inner">
+                            <!-- QR code will be generated here -->
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Show this to guards for scanning.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- =================================================================== -->
+            <!-- GUARD VIEW -->
+            <!-- =================================================================== -->
+            <div id="guard-view" class="view hidden space-y-6">
+                <!-- 1. LOCATION SELECTOR -->
+                <section class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Guard Scanner</h2>
+                    <div>
+                        <label for="guard-location" class="block text-sm font-medium text-gray-700">Select Your Guard Post Location</label>
+                        <select id="guard-location" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="Accommodation">Accommodation Entry</option>
+                            <option value="Campus">Campus Exit</option>
+                            <option value="Event X">Event X Entry</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- 2. QR SCANNER -->
+                <section class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Scan Participant QR Code</h3>
+                    <div class="w-full max-w-sm mx-auto">
+                        <div id="qr-reader" class="w-full"></div>
+                    </div>
+                    <div id="start-scan-btn-container" class="text-center mt-4">
+                        <button id="start-scan-btn" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition font-medium">Start Camera Scan</button>
+                    </div>
+                </section>
+                
+                <!-- 3. VERIFICATION CARD (NEW) -->
+                <section id="guard-verification-card" class="bg-white p-6 rounded-lg shadow-lg hidden">
+                    <h3 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Verify Participant</h3>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- Photo -->
+                        <div class="flex-shrink-0">
+                            <!-- We made this w-48 h-48 to make it bigger -->
+                            <img id="guard-verify-photo" src="" alt="Participant" class="w-48 h-48 md:w-64 md:h-64 rounded-lg object-cover shadow-md border-4 border-gray-200">
+                        </div>
+                        <!-- Details -->
+                        <div class="flex-1 space-y-3">
+                            <h4 id="guard-verify-name" class="text-3xl font-bold text-gray-900"></h4>
+                            <p class="text-lg text-gray-600">
+                                <span class="font-medium">College:</span>
+                                <span id="guard-verify-college"></span>
+                         </p>
+                            <p class="text-lg text-gray-600">
+                                <span class="font-medium">Roll No:</span>
+                                <span id="guard-verify-roll"></span>
+                            </p>
+
+                            <!-- Permission Status -->
+                            <div id="guard-verify-permission" class="p-4 rounded-lg text-center">
+                               <p class="text-2xl font-bold"></p>
+                            </div>
+                        </div>
+                    </div>
+
+    <!-- Action Buttons -->
+                    <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                        <button id="guard-confirm-btn" class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition font-medium text-lg hidden">
+                            Confirm Entry & Update Location
+                        </button>
+                        <button id="guard-cancel-btn" class="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition font-medium text-lg">
+                            Cancel & Scan Next
+                        </button>
+                    </div>
+                </section>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                        <button id="guard-confirm-btn" class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition font-medium text-lg hidden">
+                            Confirm Entry & Update Location
+                        </button>
+                        <button id="guard-cancel-btn" class="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition font-medium text-lg">
+                            Cancel & Scan Next
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 
+      6. OUR Custom JavaScript
+      We use type="module" so the browser treats it as a modern JS file.
+      We use "defer" to make sure it only runs *after* the HTML is fully loaded.
+    -->
+    <script type="module" src="app.js" defer></script>
+
+</body>
+</html>
+
